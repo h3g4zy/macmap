@@ -1,6 +1,7 @@
 import requests
 import uuid
-import json
+from urllib3.util import Retry
+from requests.adapters import HTTPAdapter
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
@@ -9,6 +10,13 @@ proxy = {
     'http': 'http://83.149.70.159:13012',
     'https': 'http://83.149.70.159:13012'
 }
+
+# Create a session with retries
+session = requests.Session()
+retries = Retry(total=5, backoff_factor=0.5, status_forcelist=[502, 503, 504])
+session.mount('http://', HTTPAdapter(max_retries=retries))
+session.mount('https://', HTTPAdapter(max_retries=retries))
+
 
 def fetch_ntm_measures(reporter='392', partner='156', product='382764010'):
     # Generate a random ASP.NET_SessionId
@@ -46,7 +54,7 @@ def fetch_ntm_measures(reporter='392', partner='156', product='382764010'):
     }
 
     # Make the request with query parameters
-    response = requests.get(url, headers=headers, params=params, proxies=proxy)
+    response = session.get(url, headers=headers, params=params, proxies=proxy)
 
     # Check if the request was successful
     if response.status_code == 200:
@@ -91,7 +99,7 @@ def fetch_ntm_measures_detail(reporter='392', partner='156', product='382764010'
     }
 
     # Make the request with query parameters
-    response = requests.get(url, headers=headers, params=params, proxies=proxy)
+    response = session.get(url, headers=headers, params=params, proxies=proxy)
 
     # Check if the request was successful
     if response.status_code == 200:
@@ -136,7 +144,7 @@ def fetch_ntlc_products(countryCode='392', level='8', code='382764'):
     }
 
     # Make the request with query parameters
-    response = requests.get(url, headers=headers, params=params, proxies=proxy)
+    response = session.get(url, headers=headers, params=params, proxies=proxy)
 
     # Check if the request was successful
     if response.status_code == 200:
