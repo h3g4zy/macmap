@@ -5,6 +5,11 @@ from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
+proxy = {
+    'http': 'http://83.149.70.159:13012',
+    'https': 'http://83.149.70.159:13012'
+}
+
 def fetch_ntm_measures(reporter='392', partner='156', product='382764010'):
     # Generate a random ASP.NET_SessionId
     session_id = uuid.uuid4()
@@ -41,7 +46,7 @@ def fetch_ntm_measures(reporter='392', partner='156', product='382764010'):
     }
 
     # Make the request with query parameters
-    response = requests.get(url, headers=headers, params=params)
+    response = requests.get(url, headers=headers, params=params, proxies=proxy)
 
     # Check if the request was successful
     if response.status_code == 200:
@@ -86,7 +91,7 @@ def fetch_ntm_measures_detail(reporter='392', partner='156', product='382764010'
     }
 
     # Make the request with query parameters
-    response = requests.get(url, headers=headers, params=params)
+    response = requests.get(url, headers=headers, params=params, proxies=proxy)
 
     # Check if the request was successful
     if response.status_code == 200:
@@ -131,7 +136,7 @@ def fetch_ntlc_products(countryCode='392', level='8', code='382764'):
     }
 
     # Make the request with query parameters
-    response = requests.get(url, headers=headers, params=params)
+    response = requests.get(url, headers=headers, params=params, proxies=proxy)
 
     # Check if the request was successful
     if response.status_code == 200:
@@ -168,4 +173,4 @@ def api_ntlc_products():
     return jsonify(response), 200 if 'status_code' not in response else response['status_code']
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
